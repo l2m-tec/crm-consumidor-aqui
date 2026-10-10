@@ -14,6 +14,7 @@
  */
 
 export const THEME_IDS = [
+  "consumidor-aqui",
   "violet",
   "emerald",
   "cobalt",
@@ -23,7 +24,7 @@ export const THEME_IDS = [
 
 export type ThemeId = (typeof THEME_IDS)[number];
 
-export const DEFAULT_THEME: ThemeId = "violet";
+export const DEFAULT_THEME: ThemeId = "consumidor-aqui";
 
 export const STORAGE_KEY = "wacrm.theme";
 
@@ -67,6 +68,12 @@ export interface ThemeMeta {
 }
 
 export const THEMES: ReadonlyArray<ThemeMeta> = [
+  {
+    id: "consumidor-aqui",
+    name: "Consumidor Aqui",
+    tagline: "Vermelho da marca sobre preto e branco.",
+    swatch: "#e31e05",
+  },
   {
     id: "violet",
     name: "Violet",

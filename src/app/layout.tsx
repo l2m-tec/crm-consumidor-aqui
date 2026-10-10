@@ -30,15 +30,15 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const metadata: Metadata = {
   title: {
-    default: "wacrm",
-    template: "%s — wacrm",
+    default: "Consumidor Aqui",
+    template: "%s — Consumidor Aqui",
   },
   robots: {
     index: false,
     follow: false,
   },
   icons: {
-    icon: [{ url: "/icon" }],
+    icon: [{ url: "/icon.png" }],
   },
   formatDetection: {
     email: false,
@@ -48,7 +48,7 @@ const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#020617",
+  themeColor: "#0b0b0b",
   colorScheme: "dark light",
 };
 
