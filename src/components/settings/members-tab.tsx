@@ -286,7 +286,7 @@ export function MembersTab() {
         title={t('title')}
         description={t('description')}
         action={
-          <RequireRole min="admin">
+          <RequireRole min="owner">
             <Button onClick={() => setInviteOpen(true)}>
               <Plus className="size-4" />
               {t('inviteMember')}
@@ -474,7 +474,7 @@ export function MembersTab() {
       </Card>
 
       {/* Pending invitations — admin+ only */}
-      <RequireRole min="admin">
+      <RequireRole min="owner">
         <div>
           <div className="mb-2 flex items-center gap-2">
             <UsersRound className="size-4 text-muted-foreground" />
