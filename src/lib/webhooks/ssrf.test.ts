@@ -112,6 +112,8 @@ describe('isDeliverableUrl', () => {
 
   it('rejects a malformed URL', async () => {
     expect(await isDeliverableUrl('not a url')).toBe(false);
+    expect(await isDeliverableUrl('file:///etc/passwd')).toBe(false);
+    expect(await isDeliverableUrl('ftp://8.8.8.8/file')).toBe(false);
   });
 
   it('rejects the IPv6 spellings of an internal IPv4 target', async () => {

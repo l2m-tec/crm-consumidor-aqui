@@ -35,7 +35,12 @@ function mediaResponse(type: string | null = 'image/jpeg', size = 1024, ok = tru
     ok,
     status,
     headers: { get: (h: string) => (h.toLowerCase() === 'content-type' ? type : null) },
-    arrayBuffer: async () => new ArrayBuffer(size),
+    body: new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(new Uint8Array(size));
+        controller.close();
+      },
+    }),
   } as unknown as Response;
 }
 
@@ -293,5 +298,30 @@ describe('ensureMediaHeaderHandle', () => {
 
     const init = (fetchSpy.mock.calls[0] as unknown[])[1] as RequestInit;
     expect(init).toMatchObject({ redirect: 'manual' });
+  });
+
+  it('stops reading an oversized stream before uploading it', async () => {
+    vi.stubEnv('META_APP_ID', 'app-1');
+    let reads = 0;
+    let cancelled = false;
+    const response = {
+      ok: true,
+      headers: { get: () => 'image/jpeg' },
+      body: new ReadableStream<Uint8Array>({
+        pull(controller) {
+          reads++;
+          controller.enqueue(new Uint8Array(6 * MB));
+        },
+        cancel() {
+          cancelled = true;
+        },
+      }),
+    } as unknown as Response;
+    vi.stubGlobal('fetch', vi.fn(async () => response));
+
+    await expect(ensureMediaHeaderHandle(payload(), 'tok')).rejects.toThrow(/5 MB/);
+    expect(reads).toBeLessThanOrEqual(2); // one read plus a possible stream prefetch
+    expect(cancelled).toBe(true);
+    expect(uploadResumableMedia).not.toHaveBeenCalled();
   });
 });

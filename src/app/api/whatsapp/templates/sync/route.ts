@@ -9,6 +9,7 @@ import { decrypt } from '@/lib/whatsapp/encryption'
 import { normalizeStatus } from '@/lib/whatsapp/template-status-normalize'
 import type { TemplateButton, TemplateSampleValues } from '@/types'
 import { getT } from '@/lib/i18n/translate'
+import { isTrustedMetaPageUrl } from '@/lib/whatsapp/meta-page-url'
 
 const t = getT('Api')
 
@@ -174,9 +175,16 @@ export async function POST() {
     let pageCount = 0
 
     while (nextUrl && pageCount < PAGE_CAP) {
+      // The page URL is supplied by Meta's response. Never send the bearer
+      // token to an arbitrary destination if that response is malformed.
+      if (!isTrustedMetaPageUrl(nextUrl, META_API_VERSION)) {
+        return NextResponse.json({ error: t('templates.syncFailed') }, { status: 502 })
+      }
       pageCount++
       const metaRes: Response = await fetch(nextUrl, {
         headers: { Authorization: `Bearer ${accessToken}` },
+        redirect: 'manual',
+        signal: AbortSignal.timeout(10_000),
       })
 
       if (!metaRes.ok) {

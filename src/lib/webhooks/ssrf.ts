@@ -223,7 +223,9 @@ export async function isDeliverableUrl(
 ): Promise<boolean> {
   let host: string;
   try {
-    host = new URL(rawUrl).hostname.replace(/^\[|\]$/g, '');
+    const url = new URL(rawUrl);
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return false;
+    host = url.hostname.replace(/^\[|\]$/g, '');
   } catch {
     return false;
   }

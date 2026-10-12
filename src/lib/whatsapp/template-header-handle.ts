@@ -74,18 +74,39 @@ export async function ensureMediaHeaderHandle(
     throw new Error(t('headerWrongType', { kind, formats: spec.formats, contentType }))
   }
 
-  const bytes = new Uint8Array(await res.arrayBuffer())
+  // Enforce the ceiling while streaming. A hostile server can omit or lie
+  // about Content-Length, so checking it before arrayBuffer() is insufficient.
+  if (!res.body) throw new Error(unreachableMessage())
+  const reader = res.body.getReader()
+  const chunks: Uint8Array[] = []
+  let size = 0
+  try {
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      size += value.byteLength
+      if (size > spec.maxBytes) {
+        throw new Error(
+          t('headerTooLarge', {
+            kind,
+            size: (size / 1024 / 1024).toFixed(1),
+            max: spec.maxBytes / 1024 / 1024,
+          }),
+        )
+      }
+      chunks.push(value)
+    }
+  } finally {
+    await reader.cancel().catch(() => {})
+  }
+  const bytes = new Uint8Array(size)
+  let offset = 0
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset)
+    offset += chunk.byteLength
+  }
   if (bytes.byteLength === 0) {
     throw new Error(t('headerEmpty', { kind }))
-  }
-  if (bytes.byteLength > spec.maxBytes) {
-    throw new Error(
-      t('headerTooLarge', {
-        kind,
-        size: (bytes.byteLength / 1024 / 1024).toFixed(1),
-        max: spec.maxBytes / 1024 / 1024,
-      }),
-    )
   }
 
   // A sample served without a Content-Type is assumed to be the kind's
