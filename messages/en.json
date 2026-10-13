@@ -340,7 +340,21 @@
       "deals": "Deals",
       "noTags": "No tags",
       "noDeals": "No deals",
-      "addNotePlaceholder": "Add a note..."
+      "addNotePlaceholder": "Add a note...",
+      "caseTitle": "Client case",
+      "caseSourceCrm": "Summary of information available in this CRM",
+      "caseLoading": "Loading context...",
+      "caseServiceStatus": "Service status",
+      "caseStatus": { "open": "In progress", "pending": "Pending", "closed": "Closed" },
+      "caseNoConversation": "No conversation selected",
+      "caseMarkers": "Important labels",
+      "caseLatestNote": "Latest internal note",
+      "caseOpenDeals": "Open deals",
+      "caseMoreDeals": "{count} more deals",
+      "caseNoContext": "No notes, labels or deals for this contact yet.",
+      "caseLastContact": "Last conversation: {date}",
+      "caseProcesses": "Legal cases",
+      "caseProcessesPending": "The case-system lookup is not connected yet."
     },
     "aiBanner": {
       "pausedTitle": "AI assistant is paused here",

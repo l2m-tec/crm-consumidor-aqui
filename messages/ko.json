@@ -340,7 +340,21 @@
       "deals": "딜",
       "noTags": "태그 없음",
       "noDeals": "딜 없음",
-      "addNotePlaceholder": "메모 추가..."
+      "addNotePlaceholder": "메모 추가...",
+      "caseTitle": "고객 사건",
+      "caseSourceCrm": "이 CRM에서 확인할 수 있는 정보 요약",
+      "caseLoading": "정보를 불러오는 중...",
+      "caseServiceStatus": "상담 상태",
+      "caseStatus": { "open": "상담 중", "pending": "대기 중", "closed": "종료" },
+      "caseNoConversation": "선택된 대화 없음",
+      "caseMarkers": "중요 태그",
+      "caseLatestNote": "최근 내부 메모",
+      "caseOpenDeals": "진행 중인 거래",
+      "caseMoreDeals": "추가 거래 {count}건",
+      "caseNoContext": "이 연락처에 메모, 태그 또는 거래가 아직 없습니다.",
+      "caseLastContact": "최근 대화: {date}",
+      "caseProcesses": "법률 사건",
+      "caseProcessesPending": "사건 시스템 조회가 아직 연결되지 않았습니다."
     },
     "aiBanner": {
       "pausedTitle": "이 대화에서 AI 어시스턴트가 일시 중지됨",

@@ -340,7 +340,21 @@
       "deals": "Negócios",
       "noTags": "Sem tags",
       "noDeals": "Sem negócios",
-      "addNotePlaceholder": "Adicionar uma nota..."
+      "addNotePlaceholder": "Adicionar uma nota...",
+      "caseTitle": "Caso do cliente",
+      "caseSourceCrm": "Resumo das informações disponíveis neste CRM",
+      "caseLoading": "Carregando contexto...",
+      "caseServiceStatus": "Situação do atendimento",
+      "caseStatus": { "open": "Em atendimento", "pending": "Pendente", "closed": "Encerrado" },
+      "caseNoConversation": "Sem conversa selecionada",
+      "caseMarkers": "Marcadores importantes",
+      "caseLatestNote": "Última observação interna",
+      "caseOpenDeals": "Negociações em andamento",
+      "caseMoreDeals": "Mais {count} negociações",
+      "caseNoContext": "Ainda não há observações, marcadores ou negociações para este contato.",
+      "caseLastContact": "Última conversa: {date}",
+      "caseProcesses": "Processos jurídicos",
+      "caseProcessesPending": "Consulta ao sistema de processos ainda não conectada."
     },
     "aiBanner": {
       "pausedTitle": "O assistente de IA está pausado aqui",

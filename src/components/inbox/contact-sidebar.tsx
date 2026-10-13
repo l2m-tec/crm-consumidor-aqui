@@ -3,43 +3,47 @@
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import { cn } from "@/lib/utils";
-import type { Contact, Deal, ContactNote, Tag } from "@/types";
+import type { Contact, Conversation, Deal, ContactNote, Tag } from "@/types";
 import {
   Phone,
   Mail,
   Copy,
   Check,
-  User,
   Tag as TagIcon,
   DollarSign,
   StickyNote,
   Plus,
+  BriefcaseBusiness,
+  Clock3,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { format } from "date-fns";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { contactHandle } from "@/lib/whatsapp/wa-identity";
 
 interface ContactSidebarProps {
   contact: Contact | null;
+  conversation: Conversation | null;
 }
 
-export function ContactSidebar({ contact }: ContactSidebarProps) {
+export function ContactSidebar({ contact, conversation }: ContactSidebarProps) {
   const tSidebar = useTranslations("Inbox.sidebar");
   const tThread = useTranslations("Inbox.messageThread");
+  const locale = useLocale();
 
   const { accountId } = useAuth();
   const [copied, setCopied] = useState(false);
   const [deals, setDeals] = useState<Deal[]>([]);
   const [notes, setNotes] = useState<ContactNote[]>([]);
   const [tags, setTags] = useState<(Tag & { contact_tag_id: string })[]>([]);
+  const [loadingCase, setLoadingCase] = useState(true);
   const [newNote, setNewNote] = useState("");
   const [addingNote, setAddingNote] = useState(false);
 
   const fetchContactData = useCallback(async () => {
     if (!contact) return;
+    setLoadingCase(true);
 
     const supabase = createClient();
 
@@ -72,6 +76,7 @@ export function ContactSidebar({ contact }: ContactSidebarProps) {
         }));
       setTags(mapped);
     }
+    setLoadingCase(false);
   }, [contact]);
 
   // Load on contact change. setContactData/setTags run inside async
@@ -133,6 +138,8 @@ export function ContactSidebar({ contact }: ContactSidebarProps) {
 
   const displayName = contact.name || contactHandle(contact);
   const initials = displayName.charAt(0).toUpperCase();
+  const openDeals = deals.filter((deal) => !deal.status || deal.status === "open");
+  const latestNote = notes[0];
 
   return (
     <div className="flex h-full w-70 flex-col border-l border-border bg-card">
@@ -158,6 +165,92 @@ export function ContactSidebar({ contact }: ContactSidebarProps) {
               <p className="text-xs text-muted-foreground">{contact.company}</p>
             )}
           </div>
+
+          {/* A read-only overview of information already held in this CRM.
+              External legal-process data will be queried here once its
+              source system provides an approved read-only integration. */}
+          <section
+            aria-label={tSidebar("caseTitle")}
+            className="mt-4 rounded-xl border border-primary/25 bg-primary/5 p-3"
+          >
+            <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+              <BriefcaseBusiness className="h-4 w-4 text-primary" />
+              {tSidebar("caseTitle")}
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">{tSidebar("caseSourceCrm")}</p>
+            {loadingCase ? (
+              <p className="mt-3 text-xs text-muted-foreground">{tSidebar("caseLoading")}</p>
+            ) : (
+              <div className="mt-3 space-y-3">
+                <div>
+                  <p className="text-[11px] font-medium text-muted-foreground">{tSidebar("caseServiceStatus")}</p>
+                  <p className="text-xs font-medium text-foreground">
+                    {conversation
+                      ? tSidebar(`caseStatus.${conversation.status}`)
+                      : tSidebar("caseNoConversation")}
+                  </p>
+                </div>
+                {tags.length > 0 && (
+                  <div>
+                    <p className="text-[11px] font-medium text-muted-foreground">{tSidebar("caseMarkers")}</p>
+                    <div className="mt-1 flex flex-wrap gap-1">
+                      {tags.map((tag) => (
+                        <span
+                          key={tag.contact_tag_id}
+                          className="rounded-full border px-2 py-0.5 text-[10px]"
+                          style={{ borderColor: tag.color, color: tag.color }}
+                        >
+                          {tag.name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {latestNote && (
+                  <div>
+                    <p className="text-[11px] font-medium text-muted-foreground">{tSidebar("caseLatestNote")}</p>
+                    <p className="mt-1 max-h-28 overflow-y-auto whitespace-pre-wrap break-words text-xs text-foreground">
+                      {latestNote.note_text}
+                    </p>
+                  </div>
+                )}
+                {openDeals.length > 0 && (
+                  <div>
+                    <p className="text-[11px] font-medium text-muted-foreground">{tSidebar("caseOpenDeals")}</p>
+                    <ul className="mt-1 space-y-1 text-xs text-foreground">
+                      {openDeals.slice(0, 3).map((deal) => (
+                        <li key={deal.id}>
+                          • {deal.title}{deal.stage ? ` · ${deal.stage.name}` : ""}
+                        </li>
+                      ))}
+                    </ul>
+                    {openDeals.length > 3 && (
+                      <p className="mt-1 text-[11px] text-muted-foreground">
+                        {tSidebar("caseMoreDeals", { count: openDeals.length - 3 })}
+                      </p>
+                    )}
+                  </div>
+                )}
+                {!latestNote && tags.length === 0 && openDeals.length === 0 && (
+                  <p className="text-xs text-muted-foreground">{tSidebar("caseNoContext")}</p>
+                )}
+                {conversation?.last_message_at && (
+                  <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                    <Clock3 className="h-3 w-3" />
+                    {tSidebar("caseLastContact", {
+                      date: new Date(conversation.last_message_at).toLocaleDateString(
+                        locale === "pt" ? "pt-BR" : locale,
+                      ),
+                    })}
+                  </p>
+                )}
+              </div>
+            )}
+            <div className="mt-3 border-t border-border/70 pt-2">
+              <p className="text-[11px] font-medium text-muted-foreground">{tSidebar("caseProcesses")}</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">{tSidebar("caseProcessesPending")}</p>
+            </div>
+          </section>
 
           {/* Phone */}
           <div className="mt-4 space-y-2">
